@@ -45,13 +45,15 @@ def test():
 
 
 if __name__ == "__main__":
+    
+    """ Соберём все project_id"""
     query = 'SELECT DISTINCT project_id FROM domains;'
     project_ids = db_query_exect(query)
 
     regexp_rule = []
 
     for id in project_ids:
-    
+        """ Для каждого проектра (project_id) собираем доменные имена """
         query = f'SELECT name FROM domains WHERE project_id="{id[0]}"'
         result = db_query_exect(query)
 
@@ -59,10 +61,13 @@ if __name__ == "__main__":
 
         for record in result:
             domen = record[0] 
+            """ В каждом домене находим BAD_PROMPTS """
             position = [domen.find(prompt) for prompt in BAD_PROMPTS]
+            """ Если в домене не находится promt, возвращается значение -1 """
             if sum(position) == -2:
                 good_domains.append(domen)
 
+        """ Собираем все валидные домены в регулярное выражение """
         regexp = "|".join(good_domains)
         regexp_rule.append((id[0],regexp))
 
